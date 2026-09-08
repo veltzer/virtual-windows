@@ -12,6 +12,7 @@
 #
 # Usage: ./start_vm.sh        start the VM and open its console
 #        ./start_vm.sh --fix  only repair ownership and the VM definition
+#                             (cdrom paths, VirtIO cdrom, seclabels)
 set -euo pipefail
 # shellcheck source=config.sh
 source "$(dirname "${BASH_SOURCE[0]}")/config.sh"
@@ -33,10 +34,28 @@ for iso in "${ISO}" "${VIRTIO_ISO}"; do
 	fi
 done
 
-# 2. Attach the VirtIO ISO as a cdrom if the VM was defined without it
+# 2. Point the cdroms at the configured ISOs if the files moved since the VM
+#    was defined (e.g. into iso.gi/). libvirt refuses to start a domain whose
+#    media is missing, and the attach step below would otherwise add a second
+#    VirtIO cdrom next to the stale one. Matched by file name.
+xml="$(virsh -c "${LIBVIRT_URI}" dumpxml --inactive "${VM_NAME}")"
+changed=0
+for iso in "${ISO}" "${VIRTIO_ISO}"; do
+	while read -r stale; do
+		[[ -z "${stale}" || "${stale}" == "${iso}" ]] && continue
+		echo "Repointing cdrom ${stale} to ${iso} in the ${VM_NAME} definition"
+		xml="$(xmlstarlet ed -u "/domain/devices/disk[@device='cdrom']/source[@file='${stale}']/@file" -v "${iso}" <<<"${xml}")"
+		changed=1
+	done < <(xmlstarlet sel -t -m "/domain/devices/disk[@device='cdrom']/source[substring(@file, string-length(@file) - string-length('/$(basename "${iso}")') + 1) = '/$(basename "${iso}")']" -v @file -n <<<"${xml}")
+done
+if ((changed)); then
+	virsh -c "${LIBVIRT_URI}" define /dev/stdin <<<"${xml}"
+	xml="$(virsh -c "${LIBVIRT_URI}" dumpxml --inactive "${VM_NAME}")"
+fi
+
+# 3. Attach the VirtIO ISO as a cdrom if the VM was defined without it
 #    (e.g. created before download_virtio.sh was run). Persistent only: a
 #    running VM picks it up on its next boot.
-xml="$(virsh -c "${LIBVIRT_URI}" dumpxml --inactive "${VM_NAME}")"
 if [[ "$(xmlstarlet sel -t -v "count(/domain/devices/disk[@device='cdrom']/source[@file='${VIRTIO_ISO}'])" <<<"${xml}")" == 0 ]]; then
 	# First unused SATA target name after the ones already defined.
 	for target in sd{c..z}; do
@@ -48,7 +67,7 @@ if [[ "$(xmlstarlet sel -t -v "count(/domain/devices/disk[@device='cdrom']/sourc
 	xml="$(virsh -c "${LIBVIRT_URI}" dumpxml --inactive "${VM_NAME}")"
 fi
 
-# 3. Make sure the VM definition tells libvirt not to relabel the ISOs.
+# 4. Make sure the VM definition tells libvirt not to relabel the ISOs.
 #    Idempotent: only redefines the domain when a seclabel is missing.
 changed=0
 for iso in "${ISO}" "${VIRTIO_ISO}"; do
@@ -70,7 +89,7 @@ fi
 
 [[ "${1:-}" == "--fix" ]] && exit 0
 
-# 4. Start the VM (if needed) and open its console.
+# 5. Start the VM (if needed) and open its console.
 if [[ "$(vm_state)" != "running" ]]; then
 	virsh -c "${LIBVIRT_URI}" start "${VM_NAME}"
 fi

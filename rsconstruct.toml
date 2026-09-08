@@ -1,0 +1,22 @@
+# rsconstruct build configuration for this repository.
+
+# ─── shell ───────────────────────────────────────────────────────────────────
+
+# shellcheck every script in the repo root. --external-sources lets it follow
+# the `source config.sh` at the top of each script. .shellcheckrc is a tracked
+# dependency by default.
+[processor.shellcheck]
+src_dirs = ["."]
+src_extensions = [".sh"]
+args = ["--shell=bash", "--external-sources"]
+
+# ─── markdown ────────────────────────────────────────────────────────────────
+
+[processor.rumdl]
+src_dirs = ["."]
+
+# ─── ci ──────────────────────────────────────────────────────────────────────
+
+# lint the GitHub Actions workflow files with actionlint
+[processor.actionlint]
+src_dirs = [".github/workflows"]

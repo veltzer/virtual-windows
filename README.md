@@ -17,7 +17,7 @@ Boot, emulated TPM 2.0).
 | `verify_iso.sh`        | Checks both ISOs against the SHA-256 values pinned in `config.sh`   |
 | `rpm_file_sha256.py`   | Helper: reads a packaged file's SHA-256 from an RPM header           |
 | `create_vm.sh`         | Defines the VM with `virt-install` and boots it from the ISO. `--dry-run` prints the XML instead |
-| `start_vm.sh`          | Starts the VM if needed and opens its console. `--fix` only repairs the ISO ownership and definition (attaches the VirtIO CD-ROM if missing) |
+| `start_vm.sh`          | Starts the VM if needed and opens its console. `--fix` only repairs the ISO ownership and definition (repoints moved ISOs, attaches the VirtIO CD-ROM if missing) |
 | `stop_vm.sh`           | Clean ACPI shutdown; `--force` kills the VM                          |
 | `delete_vm.sh`         | Removes the VM, its disk, NVRAM and TPM state. `--yes` skips the prompt |
 | `show_credentials.sh`  | Prints the Windows account details from pass(1)                      |
@@ -82,7 +82,7 @@ ISO's SHA-256 from the header of the RPM that packages the same file:
 The scripts never keep passwords in this directory. `show_credentials.sh`
 reads these entries:
 
-```
+```text
 vms/windows/user
 vms/windows/password
 vms/windows/security/first-pet-name
@@ -176,6 +176,9 @@ Console tips:
 - **ISO owned by libvirt-qemu**: run `./start_vm.sh --fix`.
 - **VirtIO driver ISO not found**: run `./download_virtio.sh`; the VM cannot be
   created or started without it.
+- **ISOs moved since the VM was created** (libvirt complains the cdrom media
+  is missing): `./start_vm.sh` (or `--fix`) repoints the CD-ROMs at the paths
+  in `config.sh`.
 - **`download_iso.sh` says the link resolved to an unexpected file**:
   Microsoft changed the Evaluation Center links; look up the current
   `linkid` for your language as described in Step 1 and update `config.sh`.
