@@ -15,6 +15,13 @@ args = ["--shell=bash", "--external-sources"]
 [processor.rumdl]
 src_dirs = ["."]
 
+# ─── yaml ────────────────────────────────────────────────────────────────────
+
+# yamllint every yaml file; the only ones here are under .github. The shared
+# .yamllint.yaml is a tracked dependency by default.
+[processor.yamllint]
+src_dirs = [".github"]
+
 # ─── ci ──────────────────────────────────────────────────────────────────────
 
 # lint the GitHub Actions workflow files with actionlint
