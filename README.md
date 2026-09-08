@@ -44,8 +44,9 @@ Log out and back in if the script added you to the `libvirt` group.
 ```
 
 The script resolves the Evaluation Center's download link for the language
-in `config.sh`, downloads the Windows 11 Enterprise evaluation ISO into this
-directory, and checks it against the SHA-256 in Microsoft's hash PDF. A
+in `config.sh`, downloads the Windows 11 Enterprise evaluation ISO into
+`iso.gi/` (a directory the shared `.gitignore` ignores), and checks it
+against the SHA-256 in Microsoft's hash PDF. A
 partial download resumes on the next run. `--print-url` only prints the
 resolved link and the published hash.
 

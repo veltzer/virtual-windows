@@ -91,6 +91,7 @@ if ((print_url)); then
 fi
 
 # 3. Download (resuming a previous partial download), check it, pin the hash.
+mkdir -p "$(dirname "${ISO}")"
 echo "downloading ${file_name} (${size:-?} bytes) to ${ISO}"
 curl --fail --location --progress-bar --continue-at - \
 	--user-agent "${user_agent}" --output "${ISO}.part" "${url}"

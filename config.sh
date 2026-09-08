@@ -5,8 +5,11 @@
 #     VM_NAME=win11-test ./create_vm.sh --dry-run
 # Edit the defaults here to change the VM permanently.
 
-# Directory holding these scripts and the install ISO.
+# Directory holding these scripts.
 VM_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# Directory the ISOs are downloaded into. The *.gi suffix is what the shared
+# .gitignore ignores, so the multi-GB images never end up in git.
+ISO_DIR="${ISO_DIR:-${VM_DIR}/iso.gi}"
 
 # libvirt system instance: QEMU runs as libvirt-qemu, images live under
 # /var/lib/libvirt/images and the VM survives logout.
@@ -32,7 +35,7 @@ ISO_FWLINK="${ISO_FWLINK:-2334167}"
 # fwlink id of Windows11EnterpriseHashValues.pdf and the row label in it.
 ISO_HASH_PDF_FWLINK="${ISO_HASH_PDF_FWLINK:-2334901}"
 ISO_HASH_LABEL="${ISO_HASH_LABEL:-Enterprise Eval x64 Eval ${ISO_LANGUAGE^^} DVD9}"
-ISO="${ISO:-${VM_DIR}/Win11_Enterprise_Eval_x64_${ISO_LANGUAGE}.iso}"
+ISO="${ISO:-${ISO_DIR}/Win11_Enterprise_Eval_x64_${ISO_LANGUAGE}.iso}"
 # Expected SHA-256 of the ISO, from Microsoft's hash PDF. download_iso.sh
 # updates this line when it fetches a newer build; verify_iso.sh checks it.
 ISO_SHA256="${ISO_SHA256:-a61adeab895ef5a4db436e0a7011c92a2ff17bb0357f58b13bbc4062e535e7b9}"
@@ -40,7 +43,7 @@ ISO_SHA256="${ISO_SHA256:-a61adeab895ef5a4db436e0a7011c92a2ff17bb0357f58b13bbc40
 # VirtIO guest driver ISO (see download_virtio.sh). Required: it is attached
 # as a second cdrom so the drivers, guest agent and SPICE tools can be
 # installed inside Windows, and the VM will not be created or started without it.
-VIRTIO_ISO="${VIRTIO_ISO:-${VM_DIR}/virtio-win.iso}"
+VIRTIO_ISO="${VIRTIO_ISO:-${ISO_DIR}/virtio-win.iso}"
 VIRTIO_ISO_URL="${VIRTIO_ISO_URL:-https://fedorapeople.org/groups/virt/virtio-win/direct-downloads/stable-virtio/virtio-win.iso}"
 # The RPM next to the ISO packages the same file; its header records the
 # ISO's SHA-256 (the CHECKSUM file there only covers the RPMs themselves).

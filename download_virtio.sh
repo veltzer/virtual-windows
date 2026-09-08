@@ -40,6 +40,7 @@ if [[ "${published}" != "${VIRTIO_ISO_SHA256}" ]]; then
 	echo "note: a newer VirtIO release than the one pinned in config.sh is available; pinning it after the download"
 fi
 
+mkdir -p "$(dirname "${VIRTIO_ISO}")"
 echo "downloading ${VIRTIO_ISO_URL}"
 curl --fail --location --progress-bar --continue-at - --output "${VIRTIO_ISO}.part" "${VIRTIO_ISO_URL}"
 actual="$(file_sha256 "${VIRTIO_ISO}.part")"
