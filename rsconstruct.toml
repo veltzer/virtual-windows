@@ -10,9 +10,28 @@ src_dirs = ["."]
 src_extensions = [".sh"]
 args = ["--shell=bash", "--external-sources"]
 
+# ─── python ──────────────────────────────────────────────────────────────────
+
+# the one python script lives in the repo root next to the shell scripts;
+# src_files names it explicitly rather than sweeping "." so a future .venv or
+# scratch file cannot leak into the lint set.
+[processor.ruff]
+src_files = ["rpm_file_sha256.py"]
+
+[processor.pylint]
+src_files = ["rpm_file_sha256.py"]
+
+[processor.mypy]
+src_files = ["rpm_file_sha256.py"]
+
 # ─── markdown ────────────────────────────────────────────────────────────────
 
 [processor.rumdl]
+src_dirs = ["."]
+
+# ─── toml ────────────────────────────────────────────────────────────────────
+
+[processor.taplo]
 src_dirs = ["."]
 
 # ─── yaml ────────────────────────────────────────────────────────────────────

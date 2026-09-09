@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 """Print the SHA-256 that an RPM's header records for one of its files.
 
 Usage: rpm_file_sha256.py RPM_FILE FILE_SUFFIX
@@ -35,6 +35,7 @@ def read_header(data, offset):
 
 
 def strings(data, entry):
+    """Return the NUL-terminated strings of a STRING_ARRAY header entry."""
     _, off, count = entry
     out = []
     for _ in range(count):
@@ -45,6 +46,7 @@ def strings(data, entry):
 
 
 def main():
+    """Parse the RPM named on the command line and print the requested digest."""
     if len(sys.argv) != 3:
         sys.exit(__doc__)
     path, suffix = sys.argv[1:]
