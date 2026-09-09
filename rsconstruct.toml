@@ -1,12 +1,16 @@
 # rsconstruct build configuration for this repository.
 
+[build]
+# src_dirs entries name directories; "." (the whole tree) is a config error
+reject_dot_src_dirs = true
+
 # ─── shell ───────────────────────────────────────────────────────────────────
 
 # shellcheck every script in the repo root. --external-sources lets it follow
 # the `source config.sh` at the top of each script. .shellcheckrc is a tracked
 # dependency by default.
 [processor.shellcheck]
-src_dirs = ["."]
+src_files = ["config.sh", "create_vm.sh", "delete_vm.sh", "download_iso.sh", "download_virtio.sh", "install_prereqs.sh", "show_credentials.sh", "start_vm.sh", "stop_vm.sh", "verify_iso.sh"]
 src_extensions = [".sh"]
 args = ["--shell=bash", "--external-sources"]
 
@@ -27,12 +31,12 @@ src_files = ["rpm_file_sha256.py"]
 # ─── markdown ────────────────────────────────────────────────────────────────
 
 [processor.rumdl]
-src_dirs = ["."]
+src_files = ["README.md"]
 
 # ─── toml ────────────────────────────────────────────────────────────────────
 
 [processor.taplo]
-src_dirs = ["."]
+src_files = [".rumdl.toml", "pyproject.toml", "rsconstruct.toml"]
 
 # ─── yaml ────────────────────────────────────────────────────────────────────
 
