@@ -22,9 +22,6 @@ args = ["--shell=bash", "--external-sources"]
 [processor.ruff]
 src_files = ["rpm_file_sha256.py"]
 
-[processor.pylint]
-src_files = ["rpm_file_sha256.py"]
-
 [processor.mypy]
 src_files = ["rpm_file_sha256.py"]
 
