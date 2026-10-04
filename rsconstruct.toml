@@ -9,7 +9,7 @@ reject_dot_src_dirs = true
 # shellcheck every script in the repo root. --external-sources lets it follow
 # the `source config.sh` at the top of each script. .shellcheckrc is a tracked
 # dependency by default.
-[processor.shellcheck]
+[processor.checker.shellcheck]
 src_files = ["config.sh", "create_vm.sh", "delete_vm.sh", "download_iso.sh", "download_virtio.sh", "install_prereqs.sh", "show_credentials.sh", "start_vm.sh", "stop_vm.sh", "verify_iso.sh"]
 src_extensions = [".sh"]
 args = ["--shell=bash", "--external-sources"]
@@ -19,31 +19,31 @@ args = ["--shell=bash", "--external-sources"]
 # the one python script lives in the repo root next to the shell scripts;
 # src_files names it explicitly rather than sweeping "." so a future .venv or
 # scratch file cannot leak into the lint set.
-[processor.ruff]
+[processor.checker.ruff]
 src_files = ["rpm_file_sha256.py"]
 
-[processor.mypy]
+[processor.checker.mypy]
 src_files = ["rpm_file_sha256.py"]
 
 # ─── markdown ────────────────────────────────────────────────────────────────
 
-[processor.rumdl]
+[processor.checker.rumdl]
 src_files = ["README.md"]
 
 # ─── toml ────────────────────────────────────────────────────────────────────
 
-[processor.taplo]
+[processor.checker.taplo]
 src_files = [".rumdl.toml", "pyproject.toml", "rsconstruct.toml"]
 
 # ─── yaml ────────────────────────────────────────────────────────────────────
 
 # yamllint every yaml file; the only ones here are under .github. The shared
 # .yamllint.yaml is a tracked dependency by default.
-[processor.yamllint]
+[processor.checker.yamllint]
 src_dirs = [".github"]
 
 # ─── ci ──────────────────────────────────────────────────────────────────────
 
 # lint the GitHub Actions workflow files with actionlint
-[processor.actionlint]
+[processor.checker.actionlint]
 src_dirs = [".github/workflows"]
