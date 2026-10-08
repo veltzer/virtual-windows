@@ -37,8 +37,6 @@ src_files = [".rumdl.toml", "pyproject.toml", "rsconstruct.toml"]
 
 # ─── yaml ────────────────────────────────────────────────────────────────────
 
-# yamllint every yaml file; the only ones here are under .github. The shared
-# .yamllint.yaml is a tracked dependency by default.
 [processor.checker.iyamllint]
 src_dirs = [".github"]
 
