@@ -22,7 +22,7 @@ args = ["--shell=bash", "--external-sources"]
 [processor.checker.ruff]
 src_files = ["rpm_file_sha256.py"]
 
-[processor.checker.mypy]
+[processor.checker.pyrefly]
 src_files = ["rpm_file_sha256.py"]
 
 # ─── markdown ────────────────────────────────────────────────────────────────
