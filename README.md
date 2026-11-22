@@ -58,7 +58,7 @@ on disk never changes, and `--print-url` shows whether a newer build exists.
 
 The Evaluation Center uses fixed links with no session handshake or rate
 limit, unlike the consumer Windows 11 download page. To pick another
-language, open https://www.microsoft.com/en-us/evalcenter/download-windows-11-enterprise,
+language, open <https://www.microsoft.com/en-us/evalcenter/download-windows-11-enterprise>,
 copy the `linkid` of that language's "64-bit edition" link into `ISO_FWLINK`
 and set `ISO_LANGUAGE` accordingly.
 
@@ -138,7 +138,7 @@ Console tips:
 
 ## Inside Windows: Visual Studio and Copilot
 
-1. In Edge open https://visualstudio.microsoft.com/ and download
+1. In Edge open <https://visualstudio.microsoft.com/> and download
    **Visual Studio Community**
 2. Run the installer and pick the workloads you need (".NET desktop
    development", "Desktop development with C++", ...)
