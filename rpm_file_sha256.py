@@ -58,7 +58,7 @@ def main():
     tags, _ = read_header(data, (sig_end + 7) // 8 * 8)  # main header is 8-byte aligned
     basenames = strings(data, tags[TAG_BASENAMES])
     digests = strings(data, tags[TAG_FILEDIGESTS])
-    for base, digest in zip(basenames, digests):
+    for base, digest in zip(basenames, digests, strict=False):
         if base.endswith(suffix) and digest:
             print(digest)
             return
