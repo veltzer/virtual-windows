@@ -61,7 +61,9 @@ PASS_PREFIX="${PASS_PREFIX:-vms/windows}"
 sys_python() {
     local tool="$1"
     shift
-    /usr/bin/python3 "$(command -v "${tool}")" "$@"
+    local tool_path
+    tool_path="$(command -v "${tool}")"
+    /usr/bin/python3 "${tool_path}" "$@"
 }
 
 # Refuse to go on without the VirtIO driver ISO.
@@ -85,7 +87,9 @@ set_config_sha256() {
 
 # sha256 of a file, hex only.
 file_sha256() {
-    sha256sum "$1" | cut -d' ' -f1
+    local line
+    line="$(sha256sum "$1")"
+    echo "${line%% *}"
 }
 
 vm_exists() {

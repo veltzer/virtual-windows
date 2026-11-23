@@ -21,8 +21,16 @@ if [[ ! -f "${ISO}" ]]; then
 	exit 1
 fi
 require_virtio_iso
-if ((!dry_run)) && vm_exists; then
-	echo "error: VM '${VM_NAME}' already exists (state: $(vm_state)); run ./delete_vm.sh first" >&2
+exists=1
+if ((!dry_run)); then
+	set +e
+	vm_exists
+	exists=$?
+	set -e
+fi
+if ((exists == 0)); then
+	state="$(vm_state)"
+	echo "error: VM '${VM_NAME}' already exists (state: ${state}); run ./delete_vm.sh first" >&2
 	exit 1
 fi
 

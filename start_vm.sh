@@ -17,7 +17,11 @@ set -euo pipefail
 # shellcheck source=config.sh
 source "$(dirname "${BASH_SOURCE[0]}")/config.sh"
 
-if ! vm_exists; then
+set +e
+vm_exists
+exists=$?
+set -e
+if ((exists != 0)); then
 	echo "error: VM '${VM_NAME}' does not exist; run ./create_vm.sh first" >&2
 	exit 1
 fi
@@ -26,10 +30,14 @@ fi
 require_virtio_iso
 
 # 1. Take the ISOs back if a previous start relabelled them.
-owner="$(id -un):$(id -gn)"
+owner_user="$(id -un)"
+owner_group="$(id -gn)"
+owner="${owner_user}:${owner_group}"
 for iso in "${ISO}" "${VIRTIO_ISO}"; do
-	if [[ -e "${iso}" && "$(stat -c %U:%G "${iso}")" != "${owner}" ]]; then
-		echo "${iso} owned by $(stat -c %U:%G "${iso}"), chowning back to ${owner}"
+	[[ -e "${iso}" ]] || continue
+	iso_owner="$(stat -c %U:%G "${iso}")"
+	if [[ "${iso_owner}" != "${owner}" ]]; then
+		echo "${iso} owned by ${iso_owner}, chowning back to ${owner}"
 		sudo chown "${owner}" "${iso}"
 	fi
 done
@@ -41,12 +49,14 @@ done
 xml="$(virsh -c "${LIBVIRT_URI}" dumpxml --inactive "${VM_NAME}")"
 changed=0
 for iso in "${ISO}" "${VIRTIO_ISO}"; do
+	iso_base="$(basename "${iso}")"
+	stale_list="$(xmlstarlet sel -t -m "/domain/devices/disk[@device='cdrom']/source[substring(@file, string-length(@file) - string-length('/${iso_base}') + 1) = '/${iso_base}']" -v @file -n <<<"${xml}")"
 	while read -r stale; do
 		[[ -z "${stale}" || "${stale}" == "${iso}" ]] && continue
 		echo "Repointing cdrom ${stale} to ${iso} in the ${VM_NAME} definition"
 		xml="$(xmlstarlet ed -u "/domain/devices/disk[@device='cdrom']/source[@file='${stale}']/@file" -v "${iso}" <<<"${xml}")"
 		changed=1
-	done < <(xmlstarlet sel -t -m "/domain/devices/disk[@device='cdrom']/source[substring(@file, string-length(@file) - string-length('/$(basename "${iso}")') + 1) = '/$(basename "${iso}")']" -v @file -n <<<"${xml}")
+	done <<<"${stale_list}"
 done
 if ((changed)); then
 	virsh -c "${LIBVIRT_URI}" define /dev/stdin <<<"${xml}"
@@ -56,10 +66,12 @@ fi
 # 3. Attach the VirtIO ISO as a cdrom if the VM was defined without it
 #    (e.g. created before download_virtio.sh was run). Persistent only: a
 #    running VM picks it up on its next boot.
-if [[ "$(xmlstarlet sel -t -v "count(/domain/devices/disk[@device='cdrom']/source[@file='${VIRTIO_ISO}'])" <<<"${xml}")" == 0 ]]; then
+virtio_attached="$(xmlstarlet sel -t -v "count(/domain/devices/disk[@device='cdrom']/source[@file='${VIRTIO_ISO}'])" <<<"${xml}")"
+if [[ "${virtio_attached}" == 0 ]]; then
 	# First unused SATA target name after the ones already defined.
 	for target in sd{c..z}; do
-		[[ "$(xmlstarlet sel -t -v "count(/domain/devices/disk/target[@dev='${target}'])" <<<"${xml}")" == 0 ]] && break
+		target_used="$(xmlstarlet sel -t -v "count(/domain/devices/disk/target[@dev='${target}'])" <<<"${xml}")"
+		[[ "${target_used}" == 0 ]] && break
 	done
 	echo "Attaching VirtIO driver ISO ${VIRTIO_ISO} to ${VM_NAME} as ${target}"
 	virsh -c "${LIBVIRT_URI}" attach-disk "${VM_NAME}" "${VIRTIO_ISO}" "${target}" \
@@ -72,8 +84,9 @@ fi
 changed=0
 for iso in "${ISO}" "${VIRTIO_ISO}"; do
 	src_xpath="/domain/devices/disk[@device='cdrom']/source[@file='${iso}']"
-	if [[ "$(xmlstarlet sel -t -v "count(${src_xpath})" <<<"${xml}")" != 0 ]] &&
-		[[ "$(xmlstarlet sel -t -v "count(${src_xpath}/seclabel[@model='dac'][@relabel='no'])" <<<"${xml}")" == 0 ]]; then
+	src_count="$(xmlstarlet sel -t -v "count(${src_xpath})" <<<"${xml}")"
+	seclabel_count="$(xmlstarlet sel -t -v "count(${src_xpath}/seclabel[@model='dac'][@relabel='no'])" <<<"${xml}")"
+	if [[ "${src_count}" != 0 ]] && [[ "${seclabel_count}" == 0 ]]; then
 		echo "Adding <seclabel model='dac' relabel='no'/> to ${iso} in the ${VM_NAME} definition"
 		xml="$(xmlstarlet ed \
 			-s "${src_xpath}" -t elem -n seclabel \
@@ -90,7 +103,9 @@ fi
 [[ "${1:-}" == "--fix" ]] && exit 0
 
 # 5. Start the VM (if needed) and open its console.
-if [[ "$(vm_state)" != "running" ]]; then
+state="$(vm_state)"
+if [[ "${state}" != "running" ]]; then
 	virsh -c "${LIBVIRT_URI}" start "${VM_NAME}"
 fi
-exec /usr/bin/python3 "$(command -v virt-manager)" --connect "${LIBVIRT_URI}" --show-domain-console "${VM_NAME}"
+virt_manager="$(command -v virt-manager)"
+exec /usr/bin/python3 "${virt_manager}" --connect "${LIBVIRT_URI}" --show-domain-console "${VM_NAME}"

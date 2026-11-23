@@ -8,7 +8,11 @@ set -euo pipefail
 # shellcheck source=config.sh
 source "$(dirname "${BASH_SOURCE[0]}")/config.sh"
 
-if ! vm_exists; then
+set +e
+vm_exists
+exists=$?
+set -e
+if ((exists != 0)); then
 	echo "VM '${VM_NAME}' does not exist; nothing to do"
 	exit 0
 fi
@@ -22,7 +26,8 @@ if [[ "${1:-}" != "--yes" ]]; then
 	fi
 fi
 
-if [[ "$(vm_state)" == "running" ]]; then
+state="$(vm_state)"
+if [[ "${state}" == "running" ]]; then
 	virsh -c "${LIBVIRT_URI}" destroy "${VM_NAME}"
 fi
 # --nvram drops the UEFI variable store, --tpm the swtpm state; both are

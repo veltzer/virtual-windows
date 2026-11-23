@@ -8,7 +8,9 @@ source "$(dirname "${BASH_SOURCE[0]}")/config.sh"
 
 show() {
 	local label="$1" entry="$2"
-	printf '%-28s %s\n' "${label}:" "$(pass show "${PASS_PREFIX}/${entry}")"
+	local value
+	value="$(pass show "${PASS_PREFIX}/${entry}")"
+	printf '%-28s %s\n' "${label}:" "${value}"
 }
 
 show "user" user
