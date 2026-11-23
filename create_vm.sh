@@ -34,7 +34,6 @@ if ((exists == 0)); then
 	exit 1
 fi
 
-# shellcheck disable=SC2054  # commas are virt-install suboption separators inside quoted strings
 args=(
 	--connect "${LIBVIRT_URI}"
 	--name "${VM_NAME}"
@@ -48,7 +47,7 @@ args=(
 	--disk "path=${VM_DISK},size=${VM_DISK_GB},format=qcow2,bus=sata,driver.discard=unmap,boot.order=1"
 	--disk "path=${ISO},device=cdrom,bus=sata,readonly=on,source.seclabel0.model=dac,source.seclabel0.relabel=no"
 	--disk "path=${VIRTIO_ISO},device=cdrom,bus=sata,readonly=on,source.seclabel0.model=dac,source.seclabel0.relabel=no"
-	--network network=default,model=e1000e
+	--network "network=default,model=e1000e"
 	--graphics spice
 	--video vga
 	--sound ich9
