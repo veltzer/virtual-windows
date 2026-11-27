@@ -9,18 +9,18 @@ Boot, emulated TPM 2.0).
 
 ## Scripts
 
-| Script                 | What it does                                                         |
-|------------------------|----------------------------------------------------------------------|
-| `install_prereqs.sh`   | Installs QEMU, libvirt, virt-manager, virtinst, OVMF, swtpm, xmlstarlet, curl, poppler-utils, pass; adds you to the `libvirt` group |
-| `download_iso.sh`      | Downloads the Windows 11 Enterprise evaluation ISO, checks it against Microsoft's published SHA-256 and pins that in `config.sh`. `--print-url` only shows the link |
-| `download_virtio.sh`   | Same for the VirtIO guest driver ISO (required by create/start), using the SHA-256 recorded in the virtio-win RPM header |
-| `verify_iso.sh`        | Checks both ISOs against the SHA-256 values pinned in `config.sh`   |
-| `rpm_file_sha256.py`   | Helper: reads a packaged file's SHA-256 from an RPM header           |
-| `create_vm.sh`         | Defines the VM with `virt-install` and boots it from the ISO. `--dry-run` prints the XML instead |
-| `start_vm.sh`          | Starts the VM if needed and opens its console. `--fix` only repairs the ISO ownership and definition (repoints moved ISOs, attaches the VirtIO CD-ROM if missing) |
-| `stop_vm.sh`           | Clean ACPI shutdown; `--force` kills the VM                          |
-| `delete_vm.sh`         | Removes the VM, its disk, NVRAM and TPM state. `--yes` skips the prompt |
-| `show_credentials.sh`  | Prints the Windows account details from pass(1)                      |
+| Script                | What it does                                                                                                                                                        |
+| --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `install_prereqs.sh`  | Installs QEMU, libvirt, virt-manager, virtinst, OVMF, swtpm, xmlstarlet, curl, poppler-utils, pass; adds you to the `libvirt` group                                 |
+| `download_iso.sh`     | Downloads the Windows 11 Enterprise evaluation ISO, checks it against Microsoft's published SHA-256 and pins that in `config.sh`. `--print-url` only shows the link |
+| `download_virtio.sh`  | Same for the VirtIO guest driver ISO (required by create/start), using the SHA-256 recorded in the virtio-win RPM header                                            |
+| `verify_iso.sh`       | Checks both ISOs against the SHA-256 values pinned in `config.sh`                                                                                                   |
+| `rpm_file_sha256.py`  | Helper: reads a packaged file's SHA-256 from an RPM header                                                                                                          |
+| `create_vm.sh`        | Defines the VM with `virt-install` and boots it from the ISO. `--dry-run` prints the XML instead                                                                    |
+| `start_vm.sh`         | Starts the VM if needed and opens its console. `--fix` only repairs the ISO ownership and definition (repoints moved ISOs, attaches the VirtIO CD-ROM if missing)   |
+| `stop_vm.sh`          | Clean ACPI shutdown; `--force` kills the VM                                                                                                                         |
+| `delete_vm.sh`        | Removes the VM, its disk, NVRAM and TPM state. `--yes` skips the prompt                                                                                             |
+| `show_credentials.sh` | Prints the Windows account details from pass(1)                                                                                                                     |
 
 Every setting in `config.sh` can be overridden from the environment, for
 example `VM_NAME=win11-test ./create_vm.sh --dry-run`.
