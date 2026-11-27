@@ -10,6 +10,7 @@ symlinks carry no digest and are skipped.
 """
 import struct
 import sys
+from typing import Any
 
 RPM_LEAD_MAGIC = b"\xed\xab\xee\xdb"
 HEADER_MAGIC = b"\x8e\xad\xe8"
@@ -18,7 +19,7 @@ TAG_FILEDIGESTS = 1035
 TAG_BASENAMES = 1117
 
 
-def read_header(data, offset):
+def read_header(data: bytes, offset: int):
     """Return ({tag: (type, offset, count)}, end_offset) for the header at offset."""
     if data[offset:offset + 3] != HEADER_MAGIC:
         sys.exit(f"error: no RPM header at byte {offset}")
@@ -34,7 +35,7 @@ def read_header(data, offset):
     return tags, store + store_size
 
 
-def strings(data, entry):
+def strings(data: bytes, entry: Any):
     """Return the NUL-terminated strings of a STRING_ARRAY header entry."""
     _, off, count = entry
     out = []
@@ -45,7 +46,7 @@ def strings(data, entry):
     return out
 
 
-def main():
+def main() -> None:
     """Parse the RPM named on the command line and print the requested digest."""
     if len(sys.argv) != 3:
         sys.exit(__doc__)
